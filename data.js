@@ -30,11 +30,9 @@ window.SITE = {
      1. QUICK SETTINGS
      ======================================================================== */
 
-  // Mailing-list sign-up form. This is still last year's form: paste the new
-  // one here when it's ready (in Google Forms: Send → link icon → copy, e.g.
-  // "https://forms.gle/…"). Set it to "" to hide every sign-up button and
-  // link on the site until the new form exists.
-  mailingList: "https://forms.gle/ZPsBZ1Ro11rKgzhQ6",
+  // Mailing-list sign-up form (in Google Forms: Send → link icon → copy).
+  // Set it to "" to hide every sign-up button and link on the site.
+  mailingList: "https://docs.google.com/forms/d/e/1FAIpQLSdF-bVFgiBzeMM0ZXT24VVYr4GZOk9aAgQD70pqdMoVDBIY6w/viewform",
 
   // Notice shown at the top of every page, e.g. a room change.
   // Leave as "" to hide it.
