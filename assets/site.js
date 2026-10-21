@@ -319,13 +319,24 @@
       </aside>`;
   }
 
+  // Addresses (with a map link) for any building in SITE.places that a room mentions
+  function addressesFor(rooms) {
+    return Object.entries(S.places || {})
+      .filter(([building, address]) => !blank(address) && String(rooms || "").includes(building))
+      .map(([building, address]) => {
+        const full = `${building}, ${address}`;
+        return a(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(full)}`, esc(full));
+      });
+  }
+
   function courseSection(c) {
+    const addresses = addressesFor(c.rooms);
     const info = [
       ["Taught by", instructorNames(c)],
       ["Area", esc(c.area)],
       ["When", esc(c.when)],
       ["Dates", esc(c.first ? fmtRange(c.first, c.last) : "To be announced")],
-      ["Room", esc(c.rooms || "TBC")],
+      ["Room", esc(c.rooms || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "")],
       ["Format", esc(c.format)],
       ["Suitable for", inline(c.audience)],
     ].filter(([, v]) => !blank(v));

@@ -72,6 +72,12 @@ window.SITE = {
   // Used when a course or session doesn't say otherwise.
   defaults: { format: "In-person", room: "TBC" },
 
+  // Building addresses. When a room mentions one of these buildings, the
+  // course page shows its address with a map link.
+  places: {
+    "Chandler House": "2 Wakefield Street, London, WC1N 1PF",
+  },
+
   //   term         one of the term ids above (move a course = change this)
   //   time / room  apply to every session unless a session overrides them
   //   sessions     one line per session; add title, description, readings,
@@ -84,6 +90,7 @@ window.SITE = {
       area: "Phonology",
       audience: "Open to everyone. Some background in linguistics helps; no knowledge of sign languages needed.",
       time: "13:00–14:00",
+      room: "Room 116, Chandler House",
       instructors: [
         {
           name: "Juliette van Steensel",
@@ -92,7 +99,7 @@ window.SITE = {
           bio: "",  // research focus: British Sign Language phonology
         },
       ],
-      description: ``,
+      description: `This course will provide an introduction to the phonology of sign languages. Yes, sign languages have phonology! No prior knowledge of sign languages is required. We will begin by exploring the unique sociolinguistic context of sign languages: they are almost always minority languages, and language access is often an issue for deaf children. These factors mean that little attention was paid to sign languages for a lot of the history of the field of linguistics. Then, we will explore the basic phonological building blocks of signs: handshapes, movements and locations. We'll look at different models of the phonology of sign languages, starting with generative models from the 1980s and ending with more recent approaches that consider the impact of the modality of sign languages on their phonological organisation. Throughout the course, we will be thinking about how the modality of sign languages might impact their phonological organisation.`,
       sessions: [
         { date: "2026-11-13" },
         { date: "2026-11-20" },
@@ -109,6 +116,7 @@ window.SITE = {
       area: "Syntax & Semantics",
       audience: "Open to everyone. No prerequisites.",
       time: "17:00–18:00",
+      room: "Room 116, Chandler House",
       instructors: [
         {
           name: "Youngjin Kim",
@@ -117,7 +125,7 @@ window.SITE = {
           bio: "",  // research focus: syntax and the syntax–semantics interface
         },
       ],
-      description: ``,
+      description: `Psychological predicates such as fear, frighten, worry, and annoy look deceptively simple, but they raise some of the most persistent questions in linguistic theory. This course introduces some of the peculiar properties of psychological predicates and examines the empirical puzzles and theoretical challenges they pose in syntax and semantics. It also explores how these phenomena have been analysed in the literature, as well as a recent proposal that offers a new way of understanding them.`,
       sessions: [
         { date: "2026-11-11" },
         { date: "2026-11-18" },

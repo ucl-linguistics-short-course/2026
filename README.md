@@ -15,6 +15,7 @@ Live site: https://ucl-linguistics-short-course.github.io/2026/
 | Show a notice on every page (e.g. room change) | `announcement` (section 1); `""` hides it |
 | Change the contact person | `contact` (section 1) |
 | Set a room for a whole course | the course's `room` (section 2) |
+| Add a building's address (shown with a map link) | `places` (section 2) |
 | Change one session's date, time or room | that session's `date` / `time` / `room` |
 | Add a session topic, readings or slides | that session's `title` / `readings` / `materials` |
 | Move a course to another term | the course's `term` |
