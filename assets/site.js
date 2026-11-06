@@ -60,6 +60,8 @@
     s = s.replace(/\{(\w+)\}/g, (m, k) => (k in TOKENS ? TOKENS[k] : m));
     s = s.replace(/\[([^\]]+)\]\(\s*\)/g, "$1");  // link with no URL yet: keep the words
     s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (m, label, url) => a(url.replace(/&amp;/g, "&"), label));
+    // Bare URLs (not the ones just placed in a link); a trailing full stop stays outside
+    s = s.replace(/(?<![">])https?:\/\/[^\s<]*[^\s<.,;:!?)]/g, (url) => a(url.replace(/&amp;/g, "&"), url));
     s = s.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     s = s.replace(/(^|[\s(])_(\S(?:.*?\S)?)_(?=[\s).,;:!?]|$)/g, "$1<em>$2</em>");
     return s.replace(/\{contact\}/g, contactLink());
@@ -221,14 +223,13 @@
   function sessionTable(sessions) {
     return `
       <div class="table-wrap"><table class="stack">
-        <thead><tr><th>Date</th><th>Time</th><th>Course</th><th>Session</th><th>Room</th></tr></thead>
+        <thead><tr><th>Date</th><th>Time</th><th>Session</th><th>Room</th></tr></thead>
         <tbody>${sessions.map((s) => `
           <tr class="${rowClass(s)}" data-course="${esc(s.course.id)}">
             <td data-label="Date" class="nowrap">${esc(fmtShort(s.d))}${nextLabel(s)}</td>
             <td data-label="Time" class="nowrap">${esc(s.time || "TBC")}</td>
-            <td data-label="Course"><a href="courses.html#${esc(s.course.id)}">${esc(s.course.title)}</a></td>
-            <td data-label="Session">${s.n}. ${topic(s)}</td>
-            <td data-label="Room" class="nowrap">${esc(s.room || "TBC")}</td>
+            <td data-label="Session"><div><a href="courses.html#${esc(s.course.id)}">${esc(s.course.title)}</a><small>${s.n}. ${topic(s)}</small></div></td>
+            <td data-label="Room">${esc(s.room || "TBC")}</td>
           </tr>`).join("")}
         </tbody>
       </table></div>`;
@@ -255,13 +256,12 @@
       ${t.courses.length ? `
         ${t.note ? `<p class="muted">${inline(t.note)}</p>` : ""}
         <div class="table-wrap"><table class="stack">
-          <thead><tr><th>Course</th><th>When</th><th>Dates</th><th>Room</th></tr></thead>
+          <thead><tr><th>Course</th><th>When</th><th>Room</th></tr></thead>
           <tbody>${t.courses.map((c) => `
             <tr class="${c.last && c.last < today ? "is-past" : ""}">
-              <td data-label="Course"><a href="courses.html#${esc(c.id)}">${esc(c.title)}</a><small>${instructorNames(c)}</small></td>
-              <td data-label="When" class="nowrap">${esc(c.when)}</td>
-              <td data-label="Dates" class="nowrap">${esc(fmtRange(c.first, c.last) || "TBC")}</td>
-              <td data-label="Room" class="nowrap">${esc(c.rooms || "TBC")}</td>
+              <td data-label="Course"><div><a href="courses.html#${esc(c.id)}">${esc(c.title)}</a><small>${instructorNames(c)}</small></div></td>
+              <td data-label="When" class="nowrap"><div>${esc(c.when)}<small>${esc(fmtRange(c.first, c.last) || "Dates TBC")}</small></div></td>
+              <td data-label="Room">${esc(c.rooms || "TBC")}</td>
             </tr>`).join("")}
           </tbody>
         </table></div>` : tbaTerm(t)}`).join("");
@@ -364,6 +364,12 @@
         </li>`;
     }).join("");
 
+    const readingList = (c.readings || []).map((group) => {
+      const items = (group.items || []).filter((r) => !blank(r));
+      if (!items.length) return "";
+      return `${group.heading ? `<h4>${esc(group.heading)}</h4>` : ""}<ul class="readings">${items.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>`;
+    }).join("");
+
     const people = c.instructors.map((p) => `
       <div class="person">
         <p><strong>${p.url ? a(p.url, esc(p.name)) : esc(p.name)}</strong>${p.role ? `, ${esc(p.role)}` : ""}</p>
@@ -378,6 +384,7 @@
         ${blank(c.description) ? `<p class="tba">Course description to be announced.</p>` : rich(c.description)}
         <h3>Sessions</h3>
         ${sessions ? `<ol class="sessions">${sessions}</ol>` : `<p class="tba">Sessions to be announced.</p>`}
+        ${readingList ? `<h3>Reading list</h3><div class="reading-list">${readingList}</div>` : ""}
         ${people ? `<h3>${c.instructors.length > 1 ? "Instructors" : "Instructor"}</h3>${people}` : ""}
       </section>`;
   }

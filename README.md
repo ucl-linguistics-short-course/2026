@@ -18,6 +18,7 @@ Live site: https://ucl-linguistics-short-course.github.io/2026/
 | Add a building's address (shown with a map link) | `places` (section 2) |
 | Change one session's date, time or room | that session's `date` / `time` / `room` |
 | Add a session topic, readings or slides | that session's `title` / `readings` / `materials` |
+| Add a reading list for a whole course | the course's `readings` (pasted `https://…` addresses become links) |
 | Move a course to another term | the course's `term` |
 | Add a course | copy the template at the end of `courses` |
 | Link a tutor or staff member to their UCL profile | add them to `people` (section 2) |
