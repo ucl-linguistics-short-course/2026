@@ -47,11 +47,11 @@
     return `<a href="${esc(url)}"${cls ? ` class="${cls}"` : ""}${ext}>${label}</a>`;
   }
   const contactLink = () => a("mailto:" + S.contact.email, esc(S.contact.name));
-  // The mailing list may be blank while a new form is being made: then every
+  // The sign-up form link may be blank while a new form is being made: then every
   // sign-up link and button is left out.
   const hasList = !blank(S.mailingList);
-  const mailingList = (label, cls) => (hasList ? a(S.mailingList, label || "join the mailing list", cls) : "");
-  const hearFirst = () => (hasList ? ` To hear first, ${mailingList()}.` : "");
+  const mailingList = (label, cls) => (hasList ? a(S.mailingList, label, cls) : "");
+  const hearFirst = () => (hasList ? ` To hear first, join the mailing list on the ${mailingList("sign-up form")}.` : "");
   const TOKENS = Object.assign({}, S.links, { mailingList: hasList ? S.mailingList : "" });
 
   // Inline formatting: **bold**, _italic_, [text](url), {linkKey}, {contact}
@@ -223,7 +223,10 @@
 
   const instructorNames = (c) => c.instructors.map((p) => esc(p.name)).join(", ") || "To be announced";
   const topic = (s) => (blank(s.title) ? `<span class="tba">Topic to be announced</span>` : inline(s.title));
-  const tbaTerm = (t) => `<p class="muted">Courses for ${esc(t.name)} will be announced here.${hearFirst()}</p>`;
+  // Terms with nothing to show yet share one heading and line, e.g. "Term 2 and Term 3"
+  const splitTerms = (hasContent) => [(S.terms || []).filter(hasContent), (S.terms || []).filter((t) => !hasContent(t))];
+  const termNames = (terms) => terms.map((t) => esc(t.name)).join(", ").replace(/, ([^,]*)$/, " and $1");
+  const tbaLine = `<p class="muted">Courses will be announced here.${hearFirst()}</p>`;
 
   function sessionTable(sessions) {
     return `
@@ -242,10 +245,10 @@
 
   function statusLine() {
     if (S.complete) return `The ${esc(S.year)} programme has now finished. Thank you to all our instructors and participants.`;
-    if (nextSession && nextSession === allSessions[0]) return `Courses begin on ${esc(fmtLong(nextSession.d))}.`;
     if (nextSession) {
       const s = nextSession;
-      return `Next session: ${a("courses.html#" + s.course.id, esc(s.course.title))}, ${esc(fmtLong(s.d))}${s.time ? ", " + esc(s.time) : ""}${s.room ? ", " + esc(roomText(s.room)) : ""}.`;
+      const details = [esc(fmtLong(s.d)), s.time && `<span class="no-break">${esc(s.time)}</span>`, s.room && esc(roomText(s.room))].filter(Boolean).join(", ");
+      return `Next session: ${a("courses.html#" + s.course.id, esc(s.course.title))}<br>${details}`;
     }
     return `More courses will be announced soon.${hearFirst()}`;
   }
@@ -256,20 +259,20 @@
     const banner = S.images && S.images.banner;
     const hasBanner = banner && !blank(banner.src);
 
-    const terms = (S.terms || []).map((t) => `
+    const [announced, tba] = splitTerms((t) => t.courses.length);
+    const terms = announced.map((t) => `
       <h3>${esc(t.name)}</h3>
-      ${t.courses.length ? `
-        ${t.note ? `<p class="muted">${inline(t.note)}</p>` : ""}
-        <div class="table-wrap"><table class="stack">
-          <thead><tr><th>Course</th><th>When</th><th>Room</th></tr></thead>
-          <tbody>${t.courses.map((c) => `
-            <tr class="${c.last && c.last < today ? "is-past" : ""}">
-              <td data-label="Course"><div><a href="courses.html#${esc(c.id)}">${esc(c.title)}</a><small>${instructorNames(c)}</small></div></td>
-              <td data-label="When" class="nowrap"><div>${esc(c.when)}<small>${esc(fmtRange(c.first, c.last) || "Dates TBC")}</small></div></td>
-              <td data-label="Room">${esc(c.rooms || "TBC")}</td>
-            </tr>`).join("")}
-          </tbody>
-        </table></div>` : tbaTerm(t)}`).join("");
+      ${t.note ? `<p class="muted">${inline(t.note)}</p>` : ""}
+      <div class="table-wrap"><table class="stack">
+        <thead><tr><th>Course</th><th>When</th><th>Room</th></tr></thead>
+        <tbody>${t.courses.map((c) => `
+          <tr class="${c.last && c.last < today ? "is-past" : ""}">
+            <td data-label="Course"><div><a href="courses.html#${esc(c.id)}">${esc(c.title)}</a><small>${instructorNames(c)}</small></div></td>
+            <td data-label="When" class="nowrap"><div>${esc(c.when)}<small>${esc(fmtRange(c.first, c.last) || "Dates TBC")}</small></div></td>
+            <td data-label="Room">${esc(c.rooms || "TBC")}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table></div>`).join("") + (tba.length ? `<h3>${termNames(tba)}</h3>${tbaLine}` : "");
 
     const soon = S.complete ? [] : upcoming.slice(0, 5);
 
@@ -282,7 +285,7 @@
           <p class="hero-status">${statusLine()}</p>
           <div class="hero-actions">
             <a class="btn btn-light" href="courses.html">Browse courses</a>
-            ${mailingList("Join the mailing list", "btn btn-outline")}
+            ${mailingList("Register", "btn btn-outline")}
           </div>
         </div>
       </section>
@@ -312,9 +315,9 @@
           <ul class="plain ticks">${(S.atAGlance || []).map((x) => `<li>${inline(x)}</li>`).join("")}</ul>
         </section>
         <section class="box">
-          <h2>Mailing list</h2>
-          <p>Course announcements, rooms and materials are sent to the mailing list.</p>
-          <p>${hasList ? mailingList("Sign up", "btn") : `<span class="muted">Sign-up for ${esc(S.year)} opens soon.</span>`}</p>
+          <h2>Registration</h2>
+          <p>Please register before attending: rooms are booked according to the number of registered students. The form also lets you join the mailing list for future courses.</p>
+          <p>${hasList ? mailingList("Register", "btn") : `<span class="muted">Sign-up for ${esc(S.year)} opens soon.</span>`}</p>
         </section>
         <section class="box">
           <h2>Contact</h2>
@@ -342,7 +345,7 @@
     const facts = [
       ["When", esc(c.when) + changesNote(c.timeVaries && c.usualTime)],
       ["Dates", esc(c.first ? fmtRange(c.first, c.last) : "To be announced")],
-      ["Room", esc(roomVaries ? c.usualRoom : c.rooms || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "") + changesNote(roomVaries), "fact-room"],
+      ["Room", esc(roomVaries ? c.usualRoom : c.rooms || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "") + changesNote(roomVaries)],
       ["Format", esc(c.format)],
       ["Suitable for", inline(c.audience), "fact-wide"],
     ].filter(([, v]) => !blank(v));
@@ -396,13 +399,14 @@
   }
 
   function coursesPage() {
-    const announced = (S.terms || []).filter((t) => t.courses.length);
+    const [announced, tba] = splitTerms((t) => t.courses.length);
     const contents = announced.map((t) => `
       <li><span>${esc(t.name)}</span><ul>${t.courses.map((c) => `<li><a href="#${esc(c.id)}">${esc(c.title)}</a></li>`).join("")}</ul></li>`).join("");
 
-    const body = (S.terms || []).map((t) => `
+    const body = announced.map((t) => `
       <h2 class="term-heading" id="${esc(t.id)}">${esc(t.name)}</h2>
-      ${t.courses.length ? (t.note ? `<p class="muted">${inline(t.note)}</p>` : "") + t.courses.map(courseSection).join("") : tbaTerm(t)}`).join("");
+      ${t.note ? `<p class="muted">${inline(t.note)}</p>` : ""}${t.courses.map(courseSection).join("")}`).join("")
+      + (tba.length ? `<h2 class="term-heading">${termNames(tba)}</h2>${tbaLine}` : "");
 
     return `
       <div class="wrap page-title">
@@ -417,13 +421,13 @@
     const options = courses.filter((c) => c.sessions.some((s) => s.d))
       .map((c) => `<option value="${esc(c.id)}">${esc(c.title)}</option>`).join("");
 
-    const terms = (S.terms || []).map((t) => {
-      const sessions = allSessions.filter((s) => s.course.term === t.id);
-      return `<section class="term" data-term="${esc(t.id)}">
+    const sessionsIn = (t) => allSessions.filter((s) => s.course.term === t.id);
+    const [scheduled, tba] = splitTerms((t) => sessionsIn(t).length);
+    const terms = scheduled.map((t) => `<section class="term">
         <h2 class="term-heading">${esc(t.name)}</h2>
-        ${sessions.length ? sessionTable(sessions) : tbaTerm(t)}
-      </section>`;
-    }).join("");
+        ${sessionTable(sessionsIn(t))}
+      </section>`).join("")
+      + (tba.length ? `<section class="term"><h2 class="term-heading">${termNames(tba)}</h2>${tbaLine}</section>` : "");
 
     return `
       <div class="wrap page-title">
@@ -452,7 +456,7 @@
         <div class="clear"></div>
         ${faq ? `<h2>Frequently asked questions</h2><div class="faq">${faq}</div>` : ""}
         <h2>Contact</h2>
-        <p>For any questions, please email ${contactLink()} (${esc(S.contact.email)}).${hasList ? ` For course announcements, ${mailingList()}.` : ""}</p>
+        <p>For any questions, please email ${contactLink()} (${esc(S.contact.email)}).${hasList ? ` To attend a course, please ${mailingList("register")}.` : ""}</p>
         ${faculty ? `<h2>Faculty support</h2><ul>${faculty}</ul>` : ""}
         ${prev ? `<h2>Past programmes</h2><ul>${prev}<li>${a(S.links.programmeHome, "All programmes")}</li></ul>` : ""}
         ${credits ? `<h2 id="credits">Image credits</h2><ul>${credits}</ul>` : ""}

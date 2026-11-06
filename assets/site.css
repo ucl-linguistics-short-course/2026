@@ -51,6 +51,8 @@ img { max-width: 100%; height: auto; display: block; }
 a { color: var(--link); text-underline-offset: 2px; transition: color .15s; }
 a:hover { color: var(--link-hover); }
 :focus-visible { outline: 2px solid var(--link); outline-offset: 2px; border-radius: 4px; }
+.topbar :focus-visible, .masthead :focus-visible, .hero :focus-visible, .site-footer :focus-visible { outline-color: #fff; }
+[hidden] { display: none !important; }
 h1, h2, h3 { font-family: var(--font-serif); font-weight: 700; line-height: 1.25; color: var(--ink); }
 h1 { font-size: 2.1rem; margin: 0 0 .5rem; }
 h2 { font-size: 1.55rem; margin: 2.2rem 0 .9rem; }
@@ -125,6 +127,7 @@ p { margin: 0 0 1em; }
 .hero h1 { color: #fff; font-size: clamp(2rem, 4.4vw, 3rem); margin: 0 0 8px; text-shadow: 0 2px 16px rgba(0, 0, 0, .35); }
 .hero-status { font-size: 1.1rem; color: #e3eaf4; max-width: 42em; margin-bottom: 18px; text-shadow: 0 1px 8px rgba(0, 0, 0, .45); }
 .hero a:not(.btn) { color: #fff; }
+.no-break { white-space: nowrap; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .credit { font-size: .75rem; color: var(--ink-2); text-align: right; margin: 0; padding-top: 6px; padding-bottom: 6px; }
 
@@ -172,7 +175,7 @@ tr.is-next td small { font-weight: 400; }
 tr.is-next td:first-child { box-shadow: inset 3px 0 var(--link); }
 .label-next {
   display: inline-block; font: 700 .68rem/1.6 var(--font); text-transform: uppercase; letter-spacing: .06em;
-  color: #fff; background: var(--link); padding: 0 7px; margin-left: 6px; border-radius: 999px; vertical-align: 1px;
+  color: #fff; background: var(--link); padding: 0 7px; margin-left: 6px; border-radius: 999px; vertical-align: 1px; align-self: center;
 }
 :root[data-theme="dark"] .label-next { color: #0e1a2b; }
 
@@ -189,6 +192,7 @@ tr.is-next td:first-child { box-shadow: inset 3px 0 var(--link); }
   padding: 26px 30px; margin-top: 22px; box-shadow: var(--shadow);
 }
 .course h2 { margin: 0 0 6px; }
+.course > p { max-width: 46rem; }
 .course-area { font-size: .76rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--link); margin: 0 0 4px; }
 .byline { color: var(--ink-2); margin-bottom: 16px; overflow-wrap: anywhere; }
 .byline p { margin: 0; }
@@ -205,7 +209,7 @@ tr.is-next td:first-child { box-shadow: inset 3px 0 var(--link); }
 /* Expandable sections */
 .fold > summary { display: flex; align-items: center; gap: 8px; width: fit-content; cursor: pointer; list-style: none; }
 .fold > summary::-webkit-details-marker { display: none; }
-.fold > summary::before { content: "▸"; display: inline-block; color: var(--link); transition: transform .15s; }
+.fold > summary::before { content: "▸"; display: inline-block; font-size: 1.4em; line-height: 1; color: var(--link); transition: transform .15s; }
 .fold[open] > summary::before { transform: rotate(90deg); }
 .reading-fold { margin-top: 1.6rem; }
 .reading-fold > summary h3 { margin: 0; }
@@ -267,16 +271,23 @@ figure.figure figcaption { margin-top: 8px; font-size: .78rem; color: var(--ink-
   figure.figure { float: none; width: 100%; margin: 0 0 16px; }
 }
 
-@media (max-width: 640px) {
+/* Title and theme switch on one row, navigation on the next */
+@media (max-width: 800px) {
   html { scroll-padding-top: 120px; }
-  h1 { font-size: 1.7rem; }
   .masthead .wrap { padding-top: 10px; padding-bottom: 4px; }
-  .site-title { font-size: 1.05rem; flex: 1; min-width: 0; }
+  .site-title { flex: 1; min-width: 0; }
+  /* The negative margins line the link text up with the title without cutting off the highlighted tab */
+  .masthead nav { order: 3; width: calc(100% + 24px); margin: 0 -12px; overflow-x: auto; }
+  .masthead nav a:focus-visible { outline-offset: -2px; }
+}
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.7rem; }
+  .site-title { font-size: 1.05rem; }
+  .hero-status { font-size: 1rem; }
   .hero::before { background: linear-gradient(180deg, rgba(8, 22, 45, .3) 0%, rgba(8, 22, 45, .65) 45%, rgba(8, 22, 45, .92) 100%); }
-  .masthead nav { order: 3; width: 100%; overflow-x: auto; }
-  .masthead nav ul { margin-left: -12px; }
   .course { padding: 20px 18px; }
-  .fact-room { grid-column: 1 / -1; }
+  .facts { grid-template-columns: minmax(0, 1fr); }
   /* Stack data tables into labelled rows */
   table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   table.stack tr { display: block; padding: 10px 14px; border-bottom: 1px solid var(--line); }

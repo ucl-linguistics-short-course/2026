@@ -5,7 +5,7 @@
    Change something here once and it updates everywhere.
 
    Where things are
-     1. QUICK SETTINGS ..... mailing-list link, notice banner, contact person
+     1. QUICK SETTINGS ..... sign-up form link, notice banner, contact person
      2. COURSES ............ terms, courses, session dates, rooms, slides
      3. ONCE A YEAR ........ year, About page text, FAQ, photos, past years
 
@@ -17,7 +17,7 @@
        **bold**   _italic_   [link text](https://…)
        a blank line to start a new paragraph
        {contact}       → the organiser's name, linked to their email
-       {mailingList}   → the mailing-list link, e.g. [Sign up]({mailingList})
+       {mailingList}   → the sign-up form link, e.g. [Register]({mailingList})
        a pasted https://… address becomes a link by itself
      A lone * (e.g. *ABA) is left alone, so linguistic stars are safe.
    • Unknown yet? Leave it out or as "" — pages show "to be announced".
@@ -31,7 +31,7 @@ window.SITE = {
      1. QUICK SETTINGS
      ======================================================================== */
 
-  // Mailing-list sign-up form (in Google Forms: Send → link icon → copy).
+  // Sign-up form: every Register link goes here (in Google Forms: Send → link icon → copy).
   // Set it to "" to hide every sign-up button and link on the site.
   mailingList: "https://docs.google.com/forms/d/e/1FAIpQLSdF-bVFgiBzeMM0ZXT24VVYr4GZOk9aAgQD70pqdMoVDBIY6w/viewform",
 
@@ -228,15 +228,15 @@ Each course runs for five one-hour sessions. Courses are free to attend and open
   },
 
   howItWorks: [
-    { title: "Join the mailing list", text: "[Sign up]({mailingList}) to hear about new courses, schedules and room details." },
     { title: "Pick a course", text: "Browse this year's courses. No prerequisites unless a course says otherwise." },
+    { title: "Register", text: "Complete the [sign-up form]({mailingList}) before attending. You can also join the mailing list there to hear about future courses." },
     { title: "Come along", text: "Sessions are one hour, usually weekly, in person at UCL." },
     { title: "Get a certificate", text: "Attend most sessions of a course and we'll email you a certificate of participation." },
   ],
 
   faq: [
     { q: "Who can attend?", a: "Everyone, whatever your background or level of experience in linguistics. Complete beginners are very welcome." },
-    { q: "Do I need to register?", a: "Join the [mailing list]({mailingList}): registration and room details are sent there before each term." },
+    { q: "Do I need to register?", a: "Yes. Please complete the [sign-up form]({mailingList}) before attending. Rooms are booked according to the number of registered students, and when room allocation is tight there may be no spare seats. If a room is full, we may have to ask anyone who has not registered to leave." },
     { q: "Do I need to attend every session?", a: "We encourage it, but we understand clashes happen. Certificates of participation go to those who attend the majority of a course's sessions." },
     { q: "Are sessions recorded?", a: "It depends on the course. Check with the instructor or look out for announcements on the mailing list." },
     { q: "How do I get my certificate?", a: "Certificates are emailed after the course ends, so make sure you sign up with the address you'd like it sent to." },
