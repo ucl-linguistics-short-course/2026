@@ -163,12 +163,17 @@
     course.first = dated[0] ? dated[0].d : null;
     course.last = dated.length ? dated[dated.length - 1].d : null;
     course.rooms = [...new Set(course.sessions.map((s) => s.room).filter(Boolean))].join("; ");
-    // "Fridays, 13:00–14:00" when every session shares a weekday and time
+    // "Fridays, 13:00–14:00" when every session shares a weekday and time.
+    // Session lines only mention a time or room that differs from the usual one.
     const days = new Set(dated.map((s) => s.d.getDay()));
     const times = new Set(course.sessions.map((s) => s.time));
-    course.when = days.size === 1 && times.size === 1
-      ? [`${DAYS_LONG[dated[0].d.getDay()]}s`, course.sessions[0].time].filter(Boolean).join(", ")
-      : (dated.length ? "Various (see sessions)" : "To be announced");
+    course.timeVaries = times.size > 1;
+    course.usualTime = c.time || (course.timeVaries ? "" : course.sessions[0]?.time || "");
+    course.usualRoom = c.room || defaults.room || "";
+    const dayLabel = days.size === 1 ? `${DAYS_LONG[dated[0].d.getDay()]}s` : "Various days";
+    course.when = !dated.length ? "To be announced"
+      : course.timeVaries && !course.usualTime ? "Various (see sessions)"
+      : [dayLabel, course.usualTime].filter(Boolean).join(", ");
     if (term) term.courses.push(course);
     course.instructors.forEach((p) => checkPerson(p.name, !blank(p.url)));
     return course;
@@ -331,69 +336,69 @@
 
   function courseSection(c) {
     const addresses = addressesFor(c.rooms);
-    const info = [
-      ["Taught by", instructorNames(c)],
-      ["Area", esc(c.area)],
-      ["When", esc(c.when)],
+    const rooms = [...new Set(c.sessions.map((s) => s.room).filter(Boolean))];
+    const roomVaries = rooms.length > 1 && rooms.includes(c.usualRoom);
+    const changesNote = (show) => (show ? `<small>Changes are listed under Sessions.</small>` : "");
+    const facts = [
+      ["When", esc(c.when) + changesNote(c.timeVaries && c.usualTime)],
       ["Dates", esc(c.first ? fmtRange(c.first, c.last) : "To be announced")],
-      ["Room", esc(c.rooms || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "")],
+      ["Room", esc(roomVaries ? c.usualRoom : c.rooms || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "") + changesNote(roomVaries), "fact-room"],
       ["Format", esc(c.format)],
-      ["Suitable for", inline(c.audience)],
+      ["Suitable for", inline(c.audience), "fact-wide"],
     ].filter(([, v]) => !blank(v));
+
+    const personName = (p) => (p.url ? a(p.url, esc(p.name)) : esc(p.name));
+    const byline = c.instructors.map((p) =>
+      `<p><strong>${personName(p)}</strong>${p.role ? `, ${esc(p.role)}` : ""}${p.email ? ` · ${a("mailto:" + p.email, esc(p.email))}` : ""}</p>`).join("");
+    const bios = c.instructors.filter((p) => !blank(p.bio)).map((p) =>
+      `<div class="person"><h4>${personName(p)}</h4>${rich(p.bio)}</div>`).join("");
 
     const sessions = c.sessions.map((s) => {
       const readings = (s.readings || []).filter((r) => !blank(r));
       const mats = (s.materials || []).filter((m) => m && (m.file || m.url));
-      const detail = [
-        s.guest ? `<p>Guest speaker: ${inline(s.guest)}</p>` : "",
-        blank(s.description) ? "" : rich(s.description),
-        readings.length ? `<p><strong>Readings</strong></p><ul class="readings">${readings.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>` : "",
-        mats.length ? `<p>${mats.map((m) => {
-          const url = m.file || m.url;
-          return a(url, esc(m.label || "Materials") + (/\.pdf$/i.test(url) ? " (PDF)" : ""));
-        }).join(" · ")}</p>` : "",
-      ].join("");
+      const hasText = !blank(s.description);
+      const readingItems = readings.length ? `<ul class="readings">${readings.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>` : "";
+      const moreLabel = hasText && readings.length ? `Details and readings (${readings.length})` : hasText ? "Details" : `Readings (${readings.length})`;
+      const changes = [s.time !== c.usualTime ? s.time : "", s.room !== c.usualRoom ? roomText(s.room) : ""].filter(Boolean);
       return `
         <li class="${s.d && s.d < today ? "is-past" : ""}">
           <span class="session-n">${s.n}</span>
-          <div>
+          <div class="session-body">
             <h4>${topic(s)}</h4>
-            <p class="when">${s.d ? esc(fmtFull(s.d)) : "Date TBC"}${s.time ? ", " + esc(s.time) : ""}${s.room ? ", " + esc(roomText(s.room)) : ""}${nextLabel(s)}</p>
-            ${detail ? `<div class="detail">${detail}</div>` : ""}
+            <p class="when">${s.d ? esc(fmtFull(s.d)) : "Date TBC"}${changes.map((x) => `, <strong>${esc(x)}</strong>`).join("")}${nextLabel(s)}</p>
+            ${s.guest ? `<p class="session-note">Guest speaker: ${inline(s.guest)}</p>` : ""}
+            ${mats.length ? `<p class="session-note">${mats.map((m) => {
+              const url = m.file || m.url;
+              return a(url, esc(m.label || "Materials") + (/\.pdf$/i.test(url) ? " (PDF)" : ""));
+            }).join(" · ")}</p>` : ""}
+            ${hasText || readings.length ? `<details class="fold session-more"><summary>${moreLabel}</summary><div class="detail">${hasText ? rich(s.description) : ""}${readingItems}</div></details>` : ""}
           </div>
         </li>`;
     }).join("");
 
-    const readingList = (c.readings || []).map((group) => {
-      const items = (group.items || []).filter((r) => !blank(r));
-      if (!items.length) return "";
-      return `${group.heading ? `<h4>${esc(group.heading)}</h4>` : ""}<ul class="readings">${items.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>`;
-    }).join("");
-
-    const people = c.instructors.map((p) => `
-      <div class="person">
-        <p><strong>${p.url ? a(p.url, esc(p.name)) : esc(p.name)}</strong>${p.role ? `, ${esc(p.role)}` : ""}</p>
-        ${p.email ? `<p>${a("mailto:" + p.email, esc(p.email))}</p>` : ""}
-        ${blank(p.bio) ? "" : `<div class="detail">${rich(p.bio)}</div>`}
-      </div>`).join("");
+    const groups = (c.readings || []).map((g) => ({ heading: g.heading, items: (g.items || []).filter((r) => !blank(r)) })).filter((g) => g.items.length);
+    const readingCount = groups.reduce((n, g) => n + g.items.length, 0);
+    const readingList = groups.map((g) =>
+      `${g.heading ? `<h4>${esc(g.heading)}</h4>` : ""}<ul class="readings">${g.items.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>`).join("");
 
     return `
       <section class="course" id="${esc(c.id)}">
+        ${c.area ? `<p class="course-area">${esc(c.area)}</p>` : ""}
         <h2>${esc(c.title)}</h2>
-        <table class="info"><tbody>${info.map(([k, v]) => `<tr><th scope="row">${k}</th><td>${v}</td></tr>`).join("")}</tbody></table>
+        <div class="byline">${byline || `<p class="tba">Tutor to be announced</p>`}</div>
+        <dl class="facts">${facts.map(([k, v, cls]) => `<div${cls ? ` class="${cls}"` : ""}><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
         ${blank(c.description) ? `<p class="tba">Course description to be announced.</p>` : rich(c.description)}
         <h3>Sessions</h3>
         ${sessions ? `<ol class="sessions">${sessions}</ol>` : `<p class="tba">Sessions to be announced.</p>`}
-        ${readingList ? `<h3>Reading list</h3><div class="reading-list">${readingList}</div>` : ""}
-        ${people ? `<h3>${c.instructors.length > 1 ? "Instructors" : "Instructor"}</h3>${people}` : ""}
+        ${readingList ? `<details class="fold reading-fold"><summary><h3>Reading list <span class="muted">(${readingCount})</span></h3></summary><div class="reading-list">${readingList}</div></details>` : ""}
+        ${bios ? `<h3>${c.instructors.filter((p) => !blank(p.bio)).length > 1 ? "About the instructors" : "About the instructor"}</h3>${bios}` : ""}
       </section>`;
   }
 
   function coursesPage() {
-    const contents = (S.terms || []).map((t) => `
-      <li><span>${esc(t.name)}</span>${t.courses.length
-        ? `<ul>${t.courses.map((c) => `<li><a href="#${esc(c.id)}">${esc(c.title)}</a></li>`).join("")}</ul>`
-        : ` <span class="muted">to be announced</span>`}</li>`).join("");
+    const announced = (S.terms || []).filter((t) => t.courses.length);
+    const contents = announced.map((t) => `
+      <li><span>${esc(t.name)}</span><ul>${t.courses.map((c) => `<li><a href="#${esc(c.id)}">${esc(c.title)}</a></li>`).join("")}</ul></li>`).join("");
 
     const body = (S.terms || []).map((t) => `
       <h2 class="term-heading" id="${esc(t.id)}">${esc(t.name)}</h2>
@@ -403,7 +408,7 @@
       <div class="wrap page-title">
         <h1>Courses ${esc(S.academicYear)}</h1>
         ${S.pageIntros && S.pageIntros.courses ? `<p class="lead">${inline(S.pageIntros.courses)}</p>` : ""}
-        <nav class="contents" aria-label="Contents"><h2>Contents</h2><ul class="plain">${contents}</ul></nav>
+        ${contents ? `<nav class="contents" aria-label="Contents"><h2>Contents</h2><ul class="plain">${contents}</ul></nav>` : ""}
         ${body}
       </div>`;
   }
