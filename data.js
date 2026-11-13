@@ -124,7 +124,7 @@ window.SITE = {
       area: "Syntax & Semantics",
       audience: "Open to everyone. No prerequisites.",
       time: "17:00–18:00",
-      room: "Room 116, Chandler House",
+      room: "Room 118, Chandler House",
       instructors: [
         {
           name: "Youngjin Kim",
@@ -135,11 +135,21 @@ window.SITE = {
       ],
       description: `Psychological predicates such as _fear, frighten, worry,_ and _annoy_ look deceptively simple, but they raise some of the most persistent questions in linguistic theory. This course introduces some of the peculiar properties of psychological predicates and examines the empirical puzzles and theoretical challenges they pose in syntax and semantics. It also explores how these phenomena have been analysed in the literature, as well as a recent proposal that offers a new way of understanding them.`,
       sessions: [
-        { date: "2026-11-11", title: "What’s so special about psychological verbs?: Syntactic and semantic peculiarities and implications for theories of Universal Grammar" },
+        {
+          date: "2026-11-11",
+          title: "What’s so special about psychological verbs?: Syntactic and semantic peculiarities and implications for theories of Universal Grammar",
+          room: "Room 116, Chandler House",
+          materials: [ { label: "Slides", file: "docs/psych-verbs-1.pdf" } ],
+        },
         { date: "2026-11-18", title: "The syntax of psych verbs: Argument structure and the T/SM puzzle" },
         { date: "2026-11-25", title: "Intensionality in psych verbs: A new aspect-sensitive observation" },
-        { date: "2026-12-02", title: "From object to subject Experiencer: Deriving the causative–anticausative alternation" },
-        { date: "2026-12-09", title: "What do psych verbs show us? Are they still special? & Open questions in linguistics and beyond" },
+        // Weeks 4 and 5 combined into one longer session; the 9 Dec session is cancelled.
+        {
+          date: "2026-12-02",
+          time: "17:00–19:00",
+          title: "From object to subject Experiencer: Deriving the causative–anticausative alternation. What do psych verbs show us? Are they still special? & Open questions in linguistics and beyond",
+          description: "A longer session covering the week 4 and week 5 topics.",
+        },
       ],
       readings: [
         {

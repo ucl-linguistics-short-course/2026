@@ -162,7 +162,8 @@
     const dated = course.sessions.filter((s) => s.d).sort((x, y) => x.d - y.d);
     course.first = dated[0] ? dated[0].d : null;
     course.last = dated.length ? dated[dated.length - 1].d : null;
-    course.rooms = [...new Set(course.sessions.map((s) => s.room).filter(Boolean))].join("; ");
+    const roomList = [...new Set(course.sessions.map((s) => s.room).filter(Boolean))];
+    course.rooms = roomList.join("; ");
     // "Fridays, 13:00–14:00" when every session shares a weekday and time.
     // Session lines only mention a time or room that differs from the usual one.
     const days = new Set(dated.map((s) => s.d.getDay()));
@@ -170,6 +171,9 @@
     course.timeVaries = times.size > 1;
     course.usualTime = c.time || (course.timeVaries ? "" : course.sessions[0]?.time || "");
     course.usualRoom = c.room || defaults.room || "";
+    // Course tables and boxes show the usual room; other rooms are listed per session
+    course.roomVaries = roomList.length > 1 && roomList.includes(course.usualRoom);
+    course.roomLabel = course.roomVaries ? course.usualRoom : course.rooms;
     const dayLabel = days.size === 1 ? `${DAYS_LONG[dated[0].d.getDay()]}s` : "Various days";
     course.when = !dated.length ? "To be announced"
       : course.timeVaries && !course.usualTime ? "Various (see sessions)"
@@ -269,7 +273,7 @@
           <tr class="${c.last && c.last < today ? "is-past" : ""}">
             <td data-label="Course"><div><a href="courses.html#${esc(c.id)}">${esc(c.title)}</a><small>${instructorNames(c)}</small></div></td>
             <td data-label="When" class="nowrap"><div>${esc(c.when)}<small>${esc(fmtRange(c.first, c.last) || "Dates TBC")}</small></div></td>
-            <td data-label="Room">${esc(c.rooms || "TBC")}</td>
+            <td data-label="Room">${esc(c.roomLabel || "TBC")}</td>
           </tr>`).join("")}
         </tbody>
       </table></div>`).join("") + (tba.length ? `<h3>${termNames(tba)}</h3>${tbaLine}` : "");
@@ -339,13 +343,11 @@
 
   function courseSection(c) {
     const addresses = addressesFor(c.rooms);
-    const rooms = [...new Set(c.sessions.map((s) => s.room).filter(Boolean))];
-    const roomVaries = rooms.length > 1 && rooms.includes(c.usualRoom);
     const changesNote = (show) => (show ? `<small>Changes are listed under Sessions.</small>` : "");
     const facts = [
       ["When", esc(c.when) + changesNote(c.timeVaries && c.usualTime)],
       ["Dates", esc(c.first ? fmtRange(c.first, c.last) : "To be announced")],
-      ["Room", esc(roomVaries ? c.usualRoom : c.rooms || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "") + changesNote(roomVaries)],
+      ["Room", esc(c.roomLabel || "TBC") + (addresses.length ? `<small>${addresses.join("<br>")}</small>` : "") + changesNote(c.roomVaries)],
       ["Format", esc(c.format)],
       ["Suitable for", inline(c.audience), "fact-wide"],
     ].filter(([, v]) => !blank(v));
@@ -360,8 +362,6 @@
       const readings = (s.readings || []).filter((r) => !blank(r));
       const mats = (s.materials || []).filter((m) => m && (m.file || m.url));
       const hasText = !blank(s.description);
-      const readingItems = readings.length ? `<ul class="readings">${readings.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>` : "";
-      const moreLabel = hasText && readings.length ? `Details and readings (${readings.length})` : hasText ? "Details" : `Readings (${readings.length})`;
       const changes = [s.time !== c.usualTime ? s.time : "", s.room !== c.usualRoom ? roomText(s.room) : ""].filter(Boolean);
       return `
         <li class="${s.d && s.d < today ? "is-past" : ""}">
@@ -374,13 +374,13 @@
               const url = m.file || m.url;
               return a(url, esc(m.label || "Materials") + (/\.pdf$/i.test(url) ? " (PDF)" : ""));
             }).join(" · ")}</p>` : ""}
-            ${hasText || readings.length ? `<details class="fold session-more"><summary>${moreLabel}</summary><div class="detail">${hasText ? rich(s.description) : ""}${readingItems}</div></details>` : ""}
+            ${readings.length ? `<div class="session-readings"><p class="session-note">Readings</p><ul class="readings">${readings.map((r) => `<li>${inline(r)}</li>`).join("")}</ul></div>` : ""}
+            ${hasText ? `<details class="fold session-more"><summary>Details</summary><div class="detail">${rich(s.description)}</div></details>` : ""}
           </div>
         </li>`;
     }).join("");
 
     const groups = (c.readings || []).map((g) => ({ heading: g.heading, items: (g.items || []).filter((r) => !blank(r)) })).filter((g) => g.items.length);
-    const readingCount = groups.reduce((n, g) => n + g.items.length, 0);
     const readingList = groups.map((g) =>
       `${g.heading ? `<h4>${esc(g.heading)}</h4>` : ""}<ul class="readings">${g.items.map((r) => `<li>${inline(r)}</li>`).join("")}</ul>`).join("");
 
@@ -393,7 +393,7 @@
         ${blank(c.description) ? `<p class="tba">Course description to be announced.</p>` : rich(c.description)}
         <h3>Sessions</h3>
         ${sessions ? `<ol class="sessions">${sessions}</ol>` : `<p class="tba">Sessions to be announced.</p>`}
-        ${readingList ? `<details class="fold reading-fold"><summary><h3>Reading list <span class="muted">(${readingCount})</span></h3></summary><div class="reading-list">${readingList}</div></details>` : ""}
+        ${readingList ? `<h3>Reading list</h3><div class="reading-list">${readingList}</div>` : ""}
         ${bios ? `<h3>${c.instructors.filter((p) => !blank(p.bio)).length > 1 ? "About the instructors" : "About the instructor"}</h3>${bios}` : ""}
       </section>`;
   }

@@ -211,8 +211,6 @@ tr.is-next td:first-child { box-shadow: inset 3px 0 var(--link); }
 .fold > summary::-webkit-details-marker { display: none; }
 .fold > summary::before { content: "▸"; display: inline-block; font-size: 1.4em; line-height: 1; color: var(--link); transition: transform .15s; }
 .fold[open] > summary::before { transform: rotate(90deg); }
-.reading-fold { margin-top: 1.6rem; }
-.reading-fold > summary h3 { margin: 0; }
 .session-more { margin-top: 5px; }
 .session-more > summary { color: var(--link); font-size: .9rem; font-weight: 600; }
 
@@ -228,6 +226,7 @@ tr.is-next td:first-child { box-shadow: inset 3px 0 var(--link); }
 .sessions .when strong { color: var(--ink); font-weight: 600; }
 .session-note { font-size: .95rem; margin: 5px 0 0; }
 .sessions .is-past h4, .sessions .is-past .when { color: var(--ink-2); }
+.session-readings ul.readings { margin: 2px 0 0; }
 .sessions .detail { margin-top: 6px; }
 .sessions .detail p, .sessions .detail ul { margin: 0 0 6px; }
 ul.readings { padding-left: 1.2em; font-size: .95rem; overflow-wrap: anywhere; }
