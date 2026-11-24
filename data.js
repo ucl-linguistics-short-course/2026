@@ -109,8 +109,16 @@ window.SITE = {
           readings: [
             "Optional: Bayley R, Lucas C. [Sign languages](https://www.cambridge.org/core/books/abs/cambridge-handbook-of-sociolinguistics/sign-languages/A26C4912176EB2FED049A8C7974006DC). In: Mesthrie R, ed. The Cambridge Handbook of Sociolinguistics. Cambridge Handbooks in Language and Linguistics. Cambridge University Press; 2011:83-102.",
           ],
+          materials: [ { label: "Slides", file: "docs/sign-language-phonology-1.pdf" } ],
         },
-        { date: "2026-11-20", title: "Basic phonological building blocks and early work on sign phonology" },
+        {
+          date: "2026-11-20",
+          title: "Basic phonological building blocks and early work on sign phonology",
+          readings: [
+            "Optional: Sandler W, Lillo-Martin D. [Sign Language and Linguistic Universals](https://doi.org/10.1017/CBO9781139163910). Cambridge University Press; 2006. Ch. 8 Introduction.",
+          ],
+          materials: [ { label: "Slides", file: "docs/sign-language-phonology-2.pdf" } ],
+        },
         { date: "2026-11-27", title: "Segmental models and the syllable" },
         { date: "2026-12-04", title: "Feature-based models and the syllable" },
         { date: "2026-12-11", title: "Iconicity and morphology" },
@@ -141,7 +149,11 @@ window.SITE = {
           room: "Room 116, Chandler House",
           materials: [ { label: "Slides", file: "docs/psych-verbs-1.pdf" } ],
         },
-        { date: "2026-11-18", title: "The syntax of psych verbs: Argument structure and the T/SM puzzle" },
+        {
+          date: "2026-11-18",
+          title: "The syntax of psych verbs: Argument structure and the T/SM puzzle",
+          materials: [ { label: "Slides", file: "docs/psych-verbs-2.pdf" } ],
+        },
         { date: "2026-11-25", title: "Intensionality in psych verbs: A new aspect-sensitive observation" },
         // Weeks 4 and 5 combined into one longer session; the 9 Dec session is cancelled.
         {
