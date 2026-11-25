@@ -1,5 +1,5 @@
 /* ==========================================================================
-   UCL Linguistics Short Courses 26/27 — THE ONE FILE TO EDIT
+   UCL Linguistics Short Course — THE ONE FILE TO EDIT
    --------------------------------------------------------------------------
    Every page (Home, Courses, Schedule, About) is generated from this file.
    Change something here once and it updates everywhere.
@@ -7,7 +7,7 @@
    Where things are
      1. QUICK SETTINGS ..... sign-up form link, notice banner, contact person
      2. COURSES ............ terms, courses, session dates, rooms, slides
-     3. ONCE A YEAR ........ year, About page text, FAQ, photos, past years
+     3. ONCE A YEAR ........ programme name, year, About page text, FAQ, photos, past years
 
    Editing tips
    • Text goes inside quotes "…" or backticks `…` (backticks allow line
@@ -16,6 +16,7 @@
    • In longer text you can use:
        **bold**   _italic_   [link text](https://…)
        a blank line to start a new paragraph
+       {programme}     → the programme name (programmeName below)
        {contact}       → the organiser's name, linked to their email
        {mailingList}   → the sign-up form link, e.g. [Register]({mailingList})
        a pasted https://… address becomes a link by itself
@@ -228,10 +229,12 @@ window.SITE = {
      3. ONCE A YEAR
      ======================================================================== */
 
+  // The programme's name and year. The header, footer and page titles use
+  // them, and so does {programme} in any text below. Don't type the name out.
+  programmeName: "UCL Linguistics Short Course",
   year: "26/27",
-  academicYear: "2026/27",
 
-  about: `UCL Linguistics Short Courses is a training programme organised by [UCL Linguistics]({department}) PhD students, introducing students of all levels to a broad range of linguistics topics.
+  about: `{programme} is a training programme organised by [UCL Linguistics]({department}) PhD students, introducing students of all levels to a broad range of linguistics topics.
 
 Each course runs for five one-hour sessions. Courses are free to attend and open to everyone: whether you're accompanying your studies or just curious to dive deeper, you're welcome.`,
 
@@ -272,9 +275,9 @@ Each course runs for five one-hour sessions. Courses are free to attend and open
   ],
 
   previousYears: [
-    { label: "Short Courses 25/26", url: "https://ucl-linguistics-short-course.github.io/2025/" },
-    { label: "Short Courses 24/25", url: "https://ucl-linguistics-short-course.github.io/2024/" },
-    { label: "Autumn School 2023", url: "https://sites.google.com/view/ucllinguisticsautumnschool2023/" },
+    { label: "{programme} 25/26", url: "https://ucl-linguistics-short-course.github.io/2025/" },
+    { label: "{programme} 24/25", url: "https://ucl-linguistics-short-course.github.io/2024/" },
+    { label: "UCL Linguistics Autumn School 2023", url: "https://sites.google.com/view/ucllinguisticsautumnschool2023/" },
   ],
 
   // Photos live in the images/ folder. Keep the credit when swapping a photo.

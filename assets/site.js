@@ -52,7 +52,9 @@
   const hasList = !blank(S.mailingList);
   const mailingList = (label, cls) => (hasList ? a(S.mailingList, label, cls) : "");
   const hearFirst = () => (hasList ? ` To hear first, join the mailing list on the ${mailingList("sign-up form")}.` : "");
-  const TOKENS = Object.assign({}, S.links, { mailingList: hasList ? S.mailingList : "" });
+  // The programme name, set once in data.js. Every page uses this, never a typed-out name.
+  const programme = esc(S.programmeName);
+  const TOKENS = Object.assign({}, S.links, { mailingList: hasList ? S.mailingList : "", programme });
 
   // Inline formatting: **bold**, _italic_, [text](url), {linkKey}, {contact}
   function inline(text) {
@@ -132,6 +134,7 @@
   } else if (hasList && !/^https?:\/\//.test(S.mailingList)) {
     warnings.push(`mailingList should start with https:// (it is "${S.mailingList}").`);
   }
+  if (blank(S.programmeName)) warnings.push("programmeName is empty, so the header, footer and page titles have no programme name.");
 
   const termById = {};
   (S.terms || []).forEach((t) => { termById[t.id] = t; t.courses = []; });
@@ -208,7 +211,7 @@
       <a class="skip" href="#main">Skip to content</a>
       <div class="topbar"><div class="wrap">${a(S.links.department, "UCL Linguistics")}</div></div>
       <header class="masthead"><div class="wrap">
-        <a class="site-title" href="index.html">Short Courses in Linguistics <span>${esc(S.academicYear)}</span></a>
+        <a class="site-title" href="index.html">${programme} <span>${esc(S.year)}</span></a>
         <nav aria-label="Main"><ul>${items}</ul></nav>
         <button class="theme-toggle" type="button"></button>
       </div></header>
@@ -218,7 +221,7 @@
   function footer() {
     return `
       <footer class="site-footer"><div class="wrap">
-        <span>UCL Linguistics Short Courses ${esc(S.year)} · Contact: ${contactLink()}</span>
+        <span>${programme} ${esc(S.year)} · Contact: ${contactLink()}</span>
         <span>Website: ${a("mailto:" + S.webmaster.email, esc(S.webmaster.name))} · <a href="about.html#credits">Image credits</a></span>
       </div></footer>`;
   }
@@ -284,8 +287,8 @@
       <section class="hero">
         ${hasBanner ? `<img src="${esc(banner.src)}" alt="${esc(banner.alt)}">` : ""}
         <div class="wrap">
-          <p class="eyebrow">${esc(S.academicYear)}</p>
-          <h1>UCL Linguistics Short Courses</h1>
+          <p class="eyebrow">${esc(S.year)}</p>
+          <h1>${programme}</h1>
           <p class="hero-status">${statusLine()}</p>
           <div class="hero-actions">
             <a class="btn btn-light" href="courses.html">Browse courses</a>
@@ -311,7 +314,7 @@
   }
 
   function aside() {
-    const prev = (S.previousYears || []).map((p) => `<li>${a(p.url, esc(p.label))}</li>`).join("");
+    const prev = (S.previousYears || []).map((p) => `<li>${a(p.url, inline(p.label))}</li>`).join("");
     return `
       <aside>
         <section class="box">
@@ -410,7 +413,7 @@
 
     return `
       <div class="wrap page-title">
-        <h1>Courses ${esc(S.academicYear)}</h1>
+        <h1>Courses ${esc(S.year)}</h1>
         ${S.pageIntros && S.pageIntros.courses ? `<p class="lead">${inline(S.pageIntros.courses)}</p>` : ""}
         ${contents ? `<nav class="contents" aria-label="Contents"><h2>Contents</h2><ul class="plain">${contents}</ul></nav>` : ""}
         ${body}
@@ -431,7 +434,7 @@
 
     return `
       <div class="wrap page-title">
-        <h1>Schedule ${esc(S.academicYear)}</h1>
+        <h1>Schedule ${esc(S.year)}</h1>
         ${S.pageIntros && S.pageIntros.schedule ? `<p class="lead">${inline(S.pageIntros.schedule)}</p>` : ""}
         ${options ? `<div class="filter-bar"><label for="course-filter">Show</label>
           <select id="course-filter"><option value="all">All courses</option>${options}</select></div>` : ""}
@@ -444,7 +447,7 @@
     const steps = (S.howItWorks || []).map((st) => `<li><strong>${esc(st.title)}.</strong> ${inline(st.text)}</li>`).join("");
     const faq = (S.faq || []).map((f) => `<h3>${esc(f.q)}</h3>${rich(f.a)}`).join("");
     const faculty = (S.faculty || []).map((f) => `<li>${f.url ? a(f.url, esc(f.name)) : esc(f.name)}, ${esc(f.role)}</li>`).join("");
-    const prev = (S.previousYears || []).map((p) => `<li>${a(p.url, esc(p.label))}</li>`).join("");
+    const prev = (S.previousYears || []).map((p) => `<li>${a(p.url, inline(p.label))}</li>`).join("");
     const credits = Object.values(S.images || {}).filter((i) => i && i.credit).map((i) => `<li>${inline(i.credit)}</li>`).join("");
 
     return `
@@ -474,7 +477,7 @@
     ? `<div class="dev-warn" role="alert"><strong>data.js check (only shown on your computer):</strong><ul>${warnings.map((w) => `<li>${esc(w)}</li>`).join("")}</ul></div>` : "";
 
   app.innerHTML = `${header()}${warnBox}<main id="main">${linkPeople(render())}</main>${footer()}`;
-  document.title = `${TITLES[page] ? TITLES[page] + " · " : ""}UCL Linguistics Short Courses ${S.year}`;
+  document.title = `${TITLES[page] ? TITLES[page] + " · " : ""}${S.programmeName || ""} ${S.year}`;
   warnings.forEach((w) => console.warn("data.js:", w));
 
   // Theme toggle
